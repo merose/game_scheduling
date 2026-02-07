@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scheduling"
+dynamic = ["version"]
+description = 'Game scheduling and analysis scripts'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Mark Rose", email = "mark.rose@nasa.gov" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/Mark Rose/scheduling#readme"
+Issues = "https://github.com/Mark Rose/scheduling/issues"
+Source = "https://github.com/Mark Rose/scheduling"
+
+[tool.hatch.version]
+path = "src/scheduling/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/scheduling tests}"
+
+[tool.coverage.run]
+source_pkgs = ["scheduling", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/scheduling/__about__.py",
+]
+
+[tool.coverage.paths]
+scheduling = ["src/scheduling", "*/scheduling/src/scheduling"]
+tests = ["tests", "*/scheduling/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
