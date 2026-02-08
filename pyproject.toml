@@ -59,3 +59,7 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
+[tool.ruff]
+# One less than 80, so that Emacs lines don't wrap.
+line-length = 79
