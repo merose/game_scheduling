@@ -9,8 +9,9 @@ scheduling and analysis of schedules.
 
 ## Installation
 
-There is no need to install the package at this time. The supplied
-analysis script does not have any dependencies.
+Start a virtual environment, if desired. Then install using pip:
+
+    pip install -e .
 
 ## Schedule analysis script
 
@@ -30,7 +31,7 @@ the first row.
 
 The script expects the manager names to be embedded within the team names.
 
-## Running the script
+### Running the script
 
 Run the script like this:
 
@@ -39,7 +40,7 @@ Run the script like this:
 It writes a report to the standard output containing any conflicts found,
 followed by a summary for each division.
 
-## Checks performed
+### Checks performed
 
 - Game overlaps on the same field
 - Game overlaps for same manager in different divisions

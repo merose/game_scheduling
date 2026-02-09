@@ -1,81 +1,9 @@
 """Check a schedule exported as CSV."""
 
-import csv
-import re
 from argparse import ArgumentParser
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
-
-class Game:
-    def __init__(self, division, away, home, date, start, stop, field):
-        self.division = division
-        self.away = away
-        self.home = home
-        self.duration = Duration(
-            self.to_datetime(date, start), self.to_datetime(date, stop)
-        )
-        self.field = field
-        self.home_mgr = self.manager(home)
-        self.away_mgr = self.manager(away)
-
-    def manager(self, team):
-        if team == "TBD":
-            return None
-        first, second = re.split(" *- *", team)
-        if first.lower().startswith(self.division.lower()):
-            return second.lower()
-        return first.lower()
-
-    def game_id(self):
-        return f"{self.field}/{self.duration.ident()}/{self.division}"
-
-    def to_datetime(self, date, tod):
-        date_str = f"{datetime.now().year}-{date}"  # noqa: DTZ005
-        return datetime.strptime(f"{date_str} {tod}", "%Y-%a, %b %d %H:%M")  # noqa: DTZ007
-
-    def __repr__(self):
-        return f"{self.duration.start.isoformat()} {self.away}@{self.home}"
-
-
-class Duration:
-    def __init__(self, start, stop):
-        self.start = start
-        self.stop = stop
-
-    def ident(self):
-        return self.start.isoformat()
-
-    def overlaps(self, duration, delta=timedelta()):
-        return (
-            self.start - delta <= duration.stop
-            and self.stop + delta >= duration.start
-        )
-
-
-def make_duration(start, stop):
-    return Duration(
-        datetime.fromtimestamp(start, tz=timezone.utc),
-        datetime.fromtimestamp(stop, tz=timezone.utc),
-    )
-
-
-def test_duration():
-    dbig = make_duration(10, 20)
-    dsmall = make_duration(12, 14)
-    doverlap = make_duration(15, 25)
-    dnone = make_duration(30, 40)
-    assert dbig.overlaps(dsmall)  # noqa: S101
-    assert dbig.overlaps(doverlap)  # noqa: S101
-    assert not dbig.overlaps(dnone)  # noqa: S101
-    assert dsmall.overlaps(dbig)  # noqa: S101
-    assert not dsmall.overlaps(doverlap)  # noqa: S101
-    assert not dsmall.overlaps(dnone)  # noqa: S101
-    assert doverlap.overlaps(dbig)  # noqa: S101
-    assert not doverlap.overlaps(dsmall)  # noqa: S101
-    assert not doverlap.overlaps(dnone)  # noqa: S101
-    assert not dnone.overlaps(dbig)  # noqa: S101
-    assert not dnone.overlaps(dsmall)  # noqa: S101
-    assert not dnone.overlaps(doverlap)  # noqa: S101
+from scheduling import Duration, parse_schedule
 
 
 def check_capitalization(items):
@@ -97,47 +25,14 @@ def week_start(d):
     return day_start(d) - timedelta(days=d.weekday())
 
 
-DIVISION_HDR = "Division"
-AWAY_HDR = "AwayTeam"
-HOME_HDR = "HomeTeam"
-DATE_HDR = "MatchDate"
-START_HDR = "StartTime"
-STOP_HDR = "EndTime"
-FIELD_HDR = "Field"
-
-
 def main():
+    """Analyze the combined schedule."""
     parser = ArgumentParser(description="Check schedule")
     parser.add_argument("file", help="Exported CSV schedule file")
     args = parser.parse_args()
 
-    games = []
-    with open(args.file) as infile:
-        reader = csv.reader(infile)
-        first_row = True
-        for row in reader:
-            if first_row:
-                first_row = False
-                division_col = row.index("Division")
-                away_col = row.index("AwayTeam")
-                home_col = row.index("HomeTeam")
-                date_col = row.index("MatchDate")
-                start_col = row.index("StartTime")
-                stop_col = row.index("EndTime")
-                field_col = row.index("Field")
-            else:
-                game = Game(
-                    division=row[division_col],
-                    away=row[away_col],
-                    home=row[home_col],
-                    date=row[date_col],
-                    start=row[start_col],
-                    stop=row[stop_col],
-                    field=row[field_col],
-                )
-                games.append(game)
-
     print(f"Schedule file: {args.file}\n")
+    games = parse_schedule(args.file)
 
     divisions = {g.division for g in games if g.division.find("playoffs") < 0}
     if not check_capitalization(divisions):
@@ -148,9 +43,9 @@ def main():
     )
     if not check_capitalization(managers):
         print(f"ERROR: Some managers vary in capitalization: {managers}")
-    #print("Managers:")
-    #for manager in managers:
-    #    print(f"  {manager}")
+    # print("Managers:")
+    # for manager in managers:
+    #     print(f"  {manager}")
 
     fields = {game.field for game in games}
     if not check_capitalization(fields):
@@ -314,5 +209,4 @@ def main():
 
 
 if __name__ == "__main__":
-    test_duration()
     main()
