@@ -70,6 +70,7 @@ def main():
                     print(
                         f"Game conflict: {last.game_id()} and {game.game_id()}"
                     )
+                last = game
     print(f"{field_conflicts} field conflicts")
 
     # Check for manager conflicts

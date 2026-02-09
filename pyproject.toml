@@ -60,6 +60,13 @@ exclude_lines = [
   "if TYPE_CHECKING:",
 ]
 
+[tool.pytest]
+# We exclude the automated tests generated from the OpenAPI spec.
+testpaths = ["tests"]
+addopts = [
+    "--strict-markers",
+]
+
 [tool.ruff]
 # One less than 80, so that Emacs lines don't wrap.
 line-length = 79
