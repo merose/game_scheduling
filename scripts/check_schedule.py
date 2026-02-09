@@ -23,8 +23,8 @@ class Game:
             return None
         first, second = re.split(" *- *", team)
         if first.lower().startswith(self.division.lower()):
-            return second
-        return first
+            return second.lower()
+        return first.lower()
 
     def game_id(self):
         return f"{self.field}/{self.duration.ident()}/{self.division}"
@@ -148,6 +148,10 @@ def main():
     )
     if not check_capitalization(managers):
         print(f"ERROR: Some managers vary in capitalization: {managers}")
+    #print("Managers:")
+    #for manager in managers:
+    #    print(f"  {manager}")
+
     fields = {game.field for game in games}
     if not check_capitalization(fields):
         print(f"ERROR: Some fields vary in capitalization: {fields}")
