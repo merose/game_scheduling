@@ -41,5 +41,12 @@ class Game:
         """Get the game start time as a string."""
         return self.duration.start.strftime("%H:%M")
 
+    def week_and_day(self):
+        """Get the week number in the year and the day of week (Sun=0)."""
+        _, week, weekday = self.duration.start.isocalendar()
+        if weekday == 7:  # noqa: PLR2004
+            return week + 1, 0
+        return week, weekday
+
     def __repr__(self):
         return f"{self.duration.start.isoformat()} {self.away}@{self.home}"

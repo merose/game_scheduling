@@ -28,7 +28,7 @@ def parse_schedule(file):
                 start_col = row.index("StartTime")
                 stop_col = row.index("EndTime")
                 field_col = row.index("Field")
-            else:
+            elif row[home_col] not in ("", "#N/A"):
                 game = Game(
                     division=row[division_col],
                     away=row[away_col],

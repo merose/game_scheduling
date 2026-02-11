@@ -102,6 +102,32 @@ def main():
         for g in sun_games:
             print(g)
 
+    # Check for any team with 3 games in one Sun-Sat week. (Local rules may
+    # further limit pitch count by calendar week.)
+    games_by_div_mgr_week = {}
+    for game in games:
+        week, _ = game.week_and_day()
+        if game.home_mgr is not None:
+            key_home = (game.division, game.home_mgr, week)
+            games_for_week = games_by_div_mgr_week.get(key_home, [])
+            games_for_week.append(game)
+            games_by_div_mgr_week[key_home] = games_for_week
+
+        if game.away_mgr is not None:
+            key_away = (game.division, game.away_mgr, week)
+            games_for_week = games_by_div_mgr_week.get(key_away, [])
+            games_for_week.append(game)
+            games_by_div_mgr_week[key_away] = games_for_week
+    mgrs_with_too_many_games = set()
+    for key, game_list in games_by_div_mgr_week.items():
+        if len(game_list) > 2:  # noqa: PLR2004
+            mgrs_with_too_many_games.add(key[1])
+            print(
+                f"Too many games per week for {key[1]}:"
+                f" {[g.game_id() for g in game_list]}"
+            )
+    print(f"{len(mgrs_with_too_many_games)} manager have >2 games per week")
+
     # Show date range and # games for each Saturday and M-F.
     dates = sorted(
         set(
@@ -143,6 +169,7 @@ def main():
         games_for_division = [
             game for game in games if game.division == division
         ]
+        print(f"Games for division: {len(games_for_division)}")
         teams_for_division = sorted(
             set(
                 [g.away for g in games_for_division]
