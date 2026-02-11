@@ -2,6 +2,10 @@
 
 from argparse import ArgumentParser
 from datetime import timedelta
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from scheduling import Duration, parse_schedule
 
@@ -28,7 +32,7 @@ def week_start(d):
 def main():
     """Analyze the combined schedule."""
     parser = ArgumentParser(description="Check schedule")
-    parser.add_argument("file", help="Exported CSV schedule file")
+    parser.add_argument("file", help="Exported CSV schedule path or URL")
     args = parser.parse_args()
 
     print(f"Schedule file: {args.file}\n")
